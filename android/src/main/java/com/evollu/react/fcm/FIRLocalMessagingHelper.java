@@ -107,8 +107,21 @@ public class FIRLocalMessagingHelper {
             }
 
             //icon
-            String smallIcon = bundle.getString("icon", "ic_launcher");
-            int smallIconResId = res.getIdentifier(smallIcon, "mipmap", packageName);
+            String smallIcon = bundle.getString("icon");
+            int smallIconResId;
+            if (smallIcon != null) {
+                smallIconResId = res.getIdentifier(smallIcon, "mipmap", packageName);
+            } else {
+                smallIconResId = res.getIdentifier("ic_notification", "mipmap", packageName);
+            }
+
+            if (smallIconResId == 0) {
+                smallIconResId = res.getIdentifier("ic_launcher", "mipmap", packageName);
+
+                if (smallIconResId == 0) {
+                    smallIconResId = android.R.drawable.ic_dialog_info;
+                }
+            }
             notification.setSmallIcon(smallIconResId);
 
             //large icon
@@ -156,6 +169,7 @@ public class FIRLocalMessagingHelper {
             }
 
             //sound
+            Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             String soundName = bundle.getString("sound", "default");
             if (!soundName.equalsIgnoreCase("default")) {
                 int soundResourceId = res.getIdentifier(soundName, "raw", packageName);
@@ -163,8 +177,9 @@ public class FIRLocalMessagingHelper {
                     soundName = soundName.substring(0, soundName.lastIndexOf('.'));
                     soundResourceId = res.getIdentifier(soundName, "raw", packageName);
                 }
-                notification.setSound(Uri.parse("android.resource://" + packageName + "/" + soundResourceId));
+                soundUri = Uri.parse("android.resource://" + packageName + "/" + soundResourceId);
             }
+            notification.setSound(soundUri);
 
             //color
             if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
